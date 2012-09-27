@@ -12,7 +12,7 @@ import kokkodis.utils.odesk.RegressionUtils;
 public class ODeskTest {
 
 	public static ErrorHolder errorHolder;
-	private static MySQLoDeskQueries q;
+	public static MySQLoDeskQueries q;
 	public static String evalPath;
 	public static int historyThreshold;
 	public static HashMap<String, HashMap<String, Double[]>> allModelCoeffs;
@@ -20,8 +20,8 @@ public class ODeskTest {
 	private static String resultPath = "C:\\Users\\mkokkodi\\"
 			+ "Documents\\My Dropbox\\workspace\\java\\kdd12\\results\\odesk\\";
 	// private static PrintToFile resultsTxt = new PrintToFile();
-	private static PrintToFile allResultsCsv = new PrintToFile();
-	private static HashMap<String, PrintToFile> coeffResults = new HashMap<String, PrintToFile>();
+	public static PrintToFile allResultsCsv = new PrintToFile();
+	public static HashMap<String, PrintToFile> coeffResults = new HashMap<String, PrintToFile>();
 
 	/**
 	 * @param args
@@ -71,7 +71,7 @@ public class ODeskTest {
 		ODeskTrain.print("Completed");
 	}
 
-	private static HashMap<String, HashMap<String, Double[]>> getAllModelCoeffs(
+	public static HashMap<String, HashMap<String, Double[]>> getAllModelCoeffs(
 			String model, String approach) {
 
 		HashMap<String, HashMap<String, Double[]>> allcoeffs = new HashMap<String, HashMap<String, Double[]>>();

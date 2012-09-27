@@ -40,13 +40,16 @@ public class TrainUtils extends Utils {
 					.get(catId);
 			BinCategory overalCategory = (BinCategory) workerHistoryMapHolder
 					.get(0);
+			//System.out.println(overalCategory.getN());
+			
 			if (overalCategory.getN() > ODeskTrain.historyThr) {
+				//System.out.println("history cool..");
 				if (approach.equals("PE"))
 					addNewTupleToTrainingFile(workerHistoryMapHolder,
 							developerId, catId, actualTaskScore, approach,
 							model);
 				else {
-					for (int i = 0; i < 30; i++)
+					for (int i = 0; i < 20; i++)
 						addNewTupleToTrainingFile(workerHistoryMapHolder,
 								developerId, catId, actualTaskScore, approach,
 								model);
@@ -113,6 +116,7 @@ public class TrainUtils extends Utils {
 
 		}
 		str += "," + catId + "," + getLogit(fix(jobScore));
+	//	System.out.println("Adding tupple:"+str);
 		ODeskTrain.outputFile.writeToFile(str);
 
 	}
@@ -157,7 +161,7 @@ public class TrainUtils extends Utils {
 							developerId, catId, actualTaskScore, approach,
 							model);
 				else {
-					for (int i = 0; i < 30; i++)
+					for (int i = 0; i <20; i++)
 						addNewTupleToTrainingFile(workerHistoryMapHolder,
 								developerId, catId, actualTaskScore, approach,
 								model);
@@ -172,5 +176,6 @@ public class TrainUtils extends Utils {
 					(MultCategory) workerHistoryMapHolder.get(0), bucket);
 		}
 	}
+
 
 }

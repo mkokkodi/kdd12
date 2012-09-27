@@ -10,24 +10,27 @@ public class DataGeneration {
 	/**
 	 * @param args
 	 */
+	
+	public static String rawData =  "/Users/mkokkodi/Desktop/bigFiles/kdd/synthetic/rawData/RS/";
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub 
 
-		for (int categories = 3; categories < 10; categories += 2) {
+		System.out.println("Starting...");
+		for (int categories = 9; categories <10 ; categories += 2) {
 			PrintToFile trainFile = new PrintToFile();
 			trainFile.openFile(new File(
-					"/Users/mkokkodi/Dropbox/workspace/java/kdd12/synthetic_data/train"
+					rawData+"train"
 							+ categories + ".csv"));
 			PrintToFile testFile = new PrintToFile();
 			testFile.openFile(new File(
-					"/Users/mkokkodi/Dropbox/workspace/java/kdd12/synthetic_data/test"
+					rawData+"test"
 							+ categories + ".csv"));
 
 			double[][] transitionProbabilities = new double[categories][categories];
 			double[] categoriesDistribution = new double[categories];
 
 			for (int i = 0; i < categories; i++) {
-				transitionProbabilities[i][i] = Math.random() / 2 + 0.4;
+				transitionProbabilities[i][i] = Math.random() / 2 + 1/(double) categories;
 				double sum = transitionProbabilities[i][i];
 				for (int j = 0; j < categories - 1; j++) {
 					if (i != j) {
@@ -64,20 +67,20 @@ public class DataGeneration {
 					.writeNoLN_ToFile("# Categories distribution -> used to choose the initial category. ");
 			trainFile.writeToFile("#");
 			for (int i = 0; i < categories; i++)
-				trainFile.writeToFile("# Prob(category =" + i + ")="
+				trainFile.writeToFile("# Prob(category =" + (i+1) + ")="
 						+ categoriesDistribution[i]);
 
 			trainFile.writeToFile("###############");
 			trainFile.writeToFile("id,task,cat,quality");
 			testFile.writeToFile("id,task,cat,quality");
-			for (int i = 0; i < 100000; i++) {
+			for (int i = 0; i < 150000; i++) {
 				int initCat = getInitialCat(categoriesDistribution);
 				double[] userQualities = getUserQualities(initCat, categories);
 				double[] userQualitiesDeviations = getDeviations(categories);
 				int curCat = initCat;
 				PsRandom psr = new PsRandom();
 				int numberOfReviews = (int) Math.floor(Math.random() * 50);
-				boolean test = (Math.random() > 0.9) ? true : false;
+				boolean test = (Math.random() > 0.8) ? true : false;
 				for (int l = 0; l < numberOfReviews; l++) {
 					double res = 2;
 					while (res > 1)
@@ -85,10 +88,10 @@ public class DataGeneration {
 								userQualitiesDeviations[initCat]);
 
 					if (test)
-						testFile.writeToFile(i + "," + l + "," + curCat + ","
+						testFile.writeToFile(i + "," + l + "," + (curCat +1)+ ","
 								+ res);
 					else {
-						trainFile.writeToFile(i + "," + l + "," + curCat + ","
+						trainFile.writeToFile(i + "," + l + "," + (curCat+1) + ","
 								+ res);
 					}
 					curCat = getNextCat(transitionProbabilities, initCat); // maybe
@@ -103,7 +106,9 @@ public class DataGeneration {
 				}
 			}
 			trainFile.closeFile();
+			testFile.closeFile();
 		}
+		System.out.println("Data generation completed. ");
 	}
 
 	private static int getNextCat(double[][] transitionProbabilities, int curCat) {

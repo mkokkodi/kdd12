@@ -14,6 +14,7 @@ import flanagan.analysis.Regression;
 
 import kokkodis.odesk.ODeskRegressions;
 import kokkodis.odesk.ODeskTrain;
+import kokkodis.synthetic.SyntheticTrain;
 import kokkodis.utils.PrintToFile;
 import kokkodis.utils.Utils;
 
@@ -48,8 +49,8 @@ public class RegressionUtils extends Utils {
 
 			}
 
-		}else{
-			
+		} else {
+
 		}
 		// path+=Regressions.basedOn+".csv";
 		ODeskTrain.print("Output files at:"
@@ -161,7 +162,25 @@ public class RegressionUtils extends Utils {
 				}
 
 				Regression reg = new Regression(x, yArray);
-				reg.linearGeneral();
+				try {
+				/*	System.out.println("-------------------");
+					for (double y : yArray) {
+						System.out.print(y + " ");
+					}
+					System.out.println("------ X now: ----");
+					for (double[] row : x) {
+						for (double el : row) {
+							System.out.print(el + " ");
+						}
+						System.out.println();
+					}
+					System.out.println("--------------------");
+					*/
+					reg.linearGeneral();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
 				double[] coeff = reg.getCoeff();
 				Double[] tmp = new Double[coeff.length];
 				for (int i = 0; i < coeff.length; i++) {
@@ -195,10 +214,12 @@ public class RegressionUtils extends Utils {
 		} else {
 			for (int l = 1; l < ODeskTrain.mPlus1; l++) {
 				Double[] tmp = coeffs.get(l + ODeskRegressions.basedOn);
-				for (int i = 0; i < ODeskTrain.mPlus1 - 1; i++)
-					System.out.print(tmp[i] + ",");
+				if (tmp != null) {
+					for (int i = 0; i < ODeskTrain.mPlus1 - 1; i++)
+						System.out.print(tmp[i] + ",");
 
-				System.out.println(tmp[ODeskTrain.mPlus1 - 1]);
+					System.out.println(tmp[ODeskTrain.mPlus1 - 1]);
+				}
 
 			}
 		}
@@ -218,17 +239,182 @@ public class RegressionUtils extends Utils {
 				vars.put(i, al);
 			}
 			while ((line = input.readLine()) != null) {
-//System.out.println(line);
+				// System.out.println(line);
 				String[] tmpAr = line.split(",");
 				for (int i = 0; i < size; i++) {
 					vars.get(i).add(Double.parseDouble(tmpAr[i].trim()));
 				}
 
 			}
+			input.close();
 			return vars;
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return null;
+
+	}
+
+	public void createRegressionFiles(String fileInitialString, int cat) {
+
+		ODeskRegressions.basedOn = "_BasedOn";
+		for (int i = 0; i < cat + 1; i++) {
+			ODeskRegressions.basedOn += "_" + i;
+		}
+		ODeskTrain.print("Output files at:"
+				+ ODeskRegressions.regressionOuputPath + fileInitialString
+				+ "_");
+
+		String inFile = ODeskTrain.trainingOutPath + fileInitialString + ".csv";
+		ODeskTrain.print("Input File:" + inFile);
+		String basedOn = ODeskRegressions.basedOn;
+
+		try {
+			HashMap<String, PrintToFile> outFilesHolder = new HashMap<String, PrintToFile>();
+			BufferedReader input = new BufferedReader(new FileReader(inFile));
+			input.readLine();
+			PrintToFile pf = new PrintToFile();
+
+			ArrayList<Integer> cats = new ArrayList<Integer>();
+			for (int j = 0; j < ODeskTrain.mPlus1; j++)
+				cats.add(j);
+			for (int i = 1; i < ODeskTrain.mPlus1; i++) {
+
+				pf = createFile(ODeskRegressions.regressionOuputPath
+						+ fileInitialString + "_", i + basedOn, i, cats);
+				outFilesHolder.put(i + basedOn, pf);
+			}
+
+			System.out.println("Reading..");
+			String line;
+			while ((line = input.readLine()) != null)
+
+			{
+				// if(!line.contains("NH"))
+				// System.out.println("It exists.");
+				// System.out.println(line);
+				String[] tmpAr = line.split(",");
+
+				boolean notComplete = false;
+				int baseCat = Integer.parseInt(tmpAr[tmpAr.length - 2].trim());
+				String key = baseCat + basedOn;
+				String newLine = tmpAr[tmpAr.length - 1] + ",";
+				for (int i = 1; i < tmpAr.length - 2; i++) {
+					if ((tmpAr[i].trim().equals("NH"))) {
+						notComplete = true;
+						break;
+						// newLine += 0.5 + ",";
+					} else {
+						newLine += tmpAr[i] + ",";
+
+					}
+				}
+				if (!notComplete) {
+
+					newLine = newLine.substring(0, newLine.length() - 1);
+					PrintToFile tmp = outFilesHolder.get(key);
+					if (tmp != null) {
+						tmp.writeToFile(newLine);
+						// System.out.println("writing to file.");
+					}
+				}
+			}
+
+			/*
+			 * Closing files
+			 */
+			Set<Entry<String, PrintToFile>> set = outFilesHolder.entrySet();
+			Iterator<Entry<String, PrintToFile>> setIt = set.iterator();
+			while (setIt.hasNext()) {
+				Entry<String, PrintToFile> me = setIt.next();
+				me.getValue().closeFile();
+
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void createRegressionFilesHier(String fileInitialString, int cluster) {
+		ODeskRegressions.basedOn = "_BasedOn";
+		for (int i = 0; i < ODeskTrain.mPlus1; i++) {
+			ODeskRegressions.basedOn += "_" + i;
+		}
+		ODeskTrain.print("Output files at:"
+				+ ODeskRegressions.regressionOuputPath + fileInitialString
+				+ "_");
+
+		String inFile = ODeskTrain.trainingOutPath + fileInitialString + ".csv";
+		ODeskTrain.print("Input File:" + inFile);
+		String basedOn = ODeskRegressions.basedOn;
+
+		try {
+			HashMap<String, PrintToFile> outFilesHolder = new HashMap<String, PrintToFile>();
+			BufferedReader input = new BufferedReader(new FileReader(inFile));
+			input.readLine();
+			PrintToFile pf = new PrintToFile();
+
+			ArrayList<Integer> cats = new ArrayList<Integer>();
+			for (int j = 0; j < ODeskTrain.mPlus1; j++)
+				cats.add(j);
+			for (int i = 1; i < ODeskTrain.mPlus1; i++) {
+
+				pf = createFile(ODeskRegressions.regressionOuputPath
+						+ fileInitialString + "_", i + basedOn, i, cats);
+				outFilesHolder.put(i + basedOn, pf);
+			}
+
+			System.out.println("Reading..");
+			String line;
+			while ((line = input.readLine()) != null)
+
+			{
+				// System.out.println(line);
+
+				// if(!line.contains("NH"))
+				// System.out.println("It exists.");
+				// System.out.println(line);
+				String[] tmpAr = line.split(",");
+
+				boolean notComplete = false;
+				int baseCat = Integer.parseInt(tmpAr[tmpAr.length - 2].trim());
+				String key = baseCat + basedOn;
+				String newLine = tmpAr[tmpAr.length - 1] + ",";
+				for (int i = 1; i < tmpAr.length - 2; i++) {
+
+					if ((tmpAr[i].trim().equals("NH"))) {
+						notComplete = true;
+						break;
+						// newLine += 0.5 + ",";
+					} else {
+						newLine += tmpAr[i] + ",";
+
+					}
+				}
+				if (!notComplete) {
+
+					newLine = newLine.substring(0, newLine.length() - 1);
+					PrintToFile tmp = outFilesHolder.get(key);
+					if (tmp != null) {
+						tmp.writeToFile(newLine);
+						// System.out.println("writing to file.");
+					}
+				}
+			}
+
+			/*
+			 * Closing files
+			 */
+			Set<Entry<String, PrintToFile>> set = outFilesHolder.entrySet();
+			Iterator<Entry<String, PrintToFile>> setIt = set.iterator();
+			while (setIt.hasNext()) {
+				Entry<String, PrintToFile> me = setIt.next();
+				me.getValue().closeFile();
+
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 	}
 }

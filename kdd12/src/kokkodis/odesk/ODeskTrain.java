@@ -39,21 +39,25 @@ public class ODeskTrain {
 	public static float scoreTh;
 	public static int historyThr = 5;
 	public static String trainingOutPath = "C:\\Users\\mkokkodi\\Desktop\\bigFiles\\kdd\\odesk\\training\\";
+			
 	public static String[] qApproach = { 
 		"PE",
-		"RS" };
+		"RS" 
+		};
 	public static String[] hierarchyLevel = { "Technical"// };
 			, "Non-technical", "Generic" };
 	public static String[] models = {
-	// "Binomial",
+	 "Binomial",
 	"Multinomial"
 	 };
-	public static float[] scoreThresholds = { 0.6f, 0.7f, 0.8f, 0.9f };
+	public static float[] scoreThresholds = { 0.6f
+		, 0.7f, 0.8f, 0.9f 
+		};
 
 	// public static String dataPath =
 	// "C:\\Users\\mkokkodi\\workspace\\odeskExperiment\\data\\";
 
-	private static MySQLoDeskQueries q;
+	public static MySQLoDeskQueries q;
 
 	/*
 	 * Some tmp additions.
@@ -126,11 +130,11 @@ public class ODeskTrain {
 		outputFile.closeFile();
 	}
 
-	private static void initialize() {
+	public static void initialize() {
 		System.out.println("Initializing...");
 		q = new MySQLoDeskQueries();
 		q.connect();
-		outputFile = new PrintToFile();
+		//outputFile = new PrintToFile();
 	}
 
 	public static void print(String str) {

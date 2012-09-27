@@ -24,8 +24,6 @@ package kokkodis.synthetic;
 
 import java.io.File;
 
-import kokkodis.db.Queries;
-import kokkodis.db.MySQLoDeskQueries;
 import kokkodis.odesk.ODeskTrain;
 import kokkodis.utils.PrintToFile;
 
@@ -39,14 +37,21 @@ public class SyntheticTrain {
 	public static int mPlus1; // m+1
 	public static float scoreTh;
 	public static int historyThr = 5;
-	public static String trainingOutPath = "/Users/mkokkodi/Desktop/bigFiles/synthetic_logits/";
-	public static String[] qApproach = { "PE", "RS" };
+	public static String trainingOutPath = "/Users/mkokkodi/Desktop/bigFiles/kdd/synthetic/logits/";
+	// "C:\\Users\\mkokkodi\\Desktop\\bigFiles\\kdd\\odesk\\synthetic\\logits\\";
+	public static String[] qApproach = { //"PE"
+		//,
+		"RS"
+		};
 	public static String[] models = { "Binomial",
 	// "Multinomial"
 	};
 
-	public static int categories;
-	public static float[] scoreThresholds = { 0.6f, 0.7f, 0.8f, 0.9f };
+	public static int categories = 5;
+	public static float[] scoreThresholds = { 0.5f, 0.6f
+		//, 0.7f
+//, 0.8f, 0.9f
+		};
 
 	/*
 	 * Some tmp additions.
@@ -56,19 +61,22 @@ public class SyntheticTrain {
 	public static void main(String[] args) {
 
 		System.out.println("Starting...");
-		categories = 5;
-		for (String model : models) {
-			for (String approach : qApproach) {
-				if (model.equals("Binomial")) {
-					for (float tmpTh : scoreThresholds) {
-						scoreTh = tmpTh;
+		// categories = 5;
+		for (int cat = 9; cat < 10; cat += 2) {
+			categories = cat;
+			for (String model : models) {
+				for (String approach : qApproach) {
+					if (model.equals("Binomial")) {
+						for (float tmpTh : scoreThresholds) {
+							scoreTh = tmpTh;
 
+							runLevel(approach, model, categories);
+
+						}
+					} else
 						runLevel(approach, model, categories);
 
-					}
-				} else
-					runLevel(approach, model, categories);
-
+				}
 			}
 		}
 		print("Completed.");
@@ -80,18 +88,18 @@ public class SyntheticTrain {
 		initialize();
 
 		if (model.equals("Binomial")) {
-			print(trainingOutPath + model + "_" + approach + "_" + scoreTh
+			print(trainingOutPath + model + "_" + approach + "_" +categories+"_"+ scoreTh
 					+ ".csv");
 			outputFile.openFile(new File(trainingOutPath + model + "_"
-					+ approach + "_" + scoreTh + ".csv"));
+					+ approach + "_"+categories+"_" + scoreTh + ".csv"));
 		} else {
-			print(trainingOutPath + model + "_" + approach + ".csv");
+			print(trainingOutPath + model + "_"+ approach +"_"+categories+ ".csv");
 			outputFile.openFile(new File(trainingOutPath + model + "_"
-					+ approach + ".csv"));
+					+ approach +"_"+categories+ ".csv"));
 		}
 
 		String str = "id,logit(q)";
-		for (int j = 0; j < categories; j++)
+		for (int j = 1; j < categories+1; j++)
 			str += ",logit(cat" + j + ")";
 
 		str += ",cat, logit(q_cat(t+1))";

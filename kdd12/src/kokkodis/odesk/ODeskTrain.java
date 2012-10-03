@@ -41,7 +41,8 @@ public class ODeskTrain {
 	public static String trainingOutPath = "C:\\Users\\mkokkodi\\Desktop\\bigFiles\\kdd\\odesk\\training\\";
 			
 	public static String[] qApproach = { 
-		"PE",
+		"PE"
+		,
 		"RS" 
 		};
 	public static String[] hierarchyLevel = { "Technical"// };

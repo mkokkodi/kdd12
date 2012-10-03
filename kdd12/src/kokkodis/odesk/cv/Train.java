@@ -20,7 +20,7 @@ public class Train {
 	/*
 	 * Some tmp additions.
 	 */
-	public static String cvDataPath = "/Users/mkokkodi/git/kdd12/cv_data/";
+	public static String cvDataPath = "/home/mkokkodi/workspace/git/kdd12/cv_data/";
 	public static HashMap<Integer, PrintToFile> outputFiles;
 
 	public static void main(String[] args) {
@@ -78,7 +78,7 @@ public class Train {
 		outputFiles = new HashMap<Integer, PrintToFile>();
 		for (int i = 1; i <= 10; i++) {
 			PrintToFile pf = new PrintToFile();
-			pf.openFile(new File(cvDataPath + ODeskTrain.scoreTh + "/" + model
+			pf.openFile(new File(cvDataPath + ((ODeskTrain.scoreTh!=0.0)?ODeskTrain.scoreTh + "/" :"")+ model
 					+ "_" + approach + "_" + level + i + ".csv"));
 			if (level.equals("Technical")) {
 

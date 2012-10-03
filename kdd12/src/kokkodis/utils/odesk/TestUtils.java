@@ -339,6 +339,9 @@ public class TestUtils extends Utils {
 		}
 
 		double modelQuality = 0;
+	
+		if(tmpCoeff == null)
+			System.out.println("The temp coeff is null.");
 
 		coeffs = tmpCoeff.get((catId) + ODeskRegressions.basedOn);
 		/*
@@ -444,7 +447,7 @@ public class TestUtils extends Utils {
 
 		double modelQuality = 0;
 
-		System.out.println("cat:"+catId+" based on:"+ ODeskRegressions.basedOn);
+		//System.out.println("cat:"+catId+" based on:"+ ODeskRegressions.basedOn);
 		coeffs = tmpCoeff.get((catId) + ODeskRegressions.basedOn);
 
 		if (approach.equals("PE")) {
@@ -1198,8 +1201,8 @@ public class TestUtils extends Utils {
 			baselineAbsoluteError = (Math.abs(baselineEstimatedQuality
 					- actualInstanceQuality));
 		} else if (model.equals("Multinomial")) {
-			modelQuality = predictMultinomialModelQuality(catId, evalWorker,
-					approach, workerType, currentTask);
+			modelQuality = predictMultinomialModelQualityCV(catId, evalWorker,
+					approach, workerType, currentTask,fold);
 			modelAbsoluteError = (Math
 					.abs(modelQuality - actualInstanceQuality));
 
@@ -1383,5 +1386,136 @@ public class TestUtils extends Utils {
 		}
 		return inverseLogit(modelQuality);
 	}
+	
+	public void updateEvalWorkerCV(
+			HashMap<Integer, EvalWorker> dataMapHolderEval, int developerId,
+			Integer catId, int bucket, double actualTaskScore, String approach,
+			String workerType, String currentTask, String model,int fold) {
+
+		EvalWorker evalWorker = dataMapHolderEval.get(developerId);
+		HashMap<Integer, ModelCategory> genericHistoryMapHolder;
+		HashMap<Integer, ModelCategory> techHistoryMapHolder;
+		HashMap<Integer, ModelCategory> nonTechHistoryMapHolder;
+
+		double currentReviews = 0;
+		MultCategory specializedOveralCategory = null;
+		MultCategory genericOveralCategory = null;
+
+		MultCategory specializedCurTaskCat = null;
+		MultCategory genericCurTaskCat = null;
+
+		/*
+		 * Creates the necessary objects in order to add history in the end of
+		 * the procedure The update follows the conditions!!
+		 */
+		if (evalWorker == null) {
+
+			evalWorker = new EvalWorker();
+			genericHistoryMapHolder = evalWorker.getGenericHistoryMap();
+			techHistoryMapHolder = evalWorker.getTechnicalHistoryMap();
+			nonTechHistoryMapHolder = evalWorker.getNonTechHistoryMap();
+
+			specializedCurTaskCat = new MultCategory();
+			genericCurTaskCat = new MultCategory();
+			specializedOveralCategory = new MultCategory();
+			genericOveralCategory = new MultCategory();
+
+			genericHistoryMapHolder.put(0, genericOveralCategory);
+
+			if (currentTask.equals("Technical")) {
+				techHistoryMapHolder.put(catId, specializedCurTaskCat);
+				techHistoryMapHolder.put(0, specializedOveralCategory);
+				genericHistoryMapHolder.put(1, genericCurTaskCat);
+			} else {
+				nonTechHistoryMapHolder.put(0, specializedOveralCategory);
+				nonTechHistoryMapHolder.put(catId, specializedCurTaskCat);
+				genericHistoryMapHolder.put(2, genericCurTaskCat);
+			}
+
+			dataMapHolderEval.put(developerId, evalWorker);
+
+		} else {
+
+			genericHistoryMapHolder = evalWorker.getGenericHistoryMap();
+			techHistoryMapHolder = evalWorker.getTechnicalHistoryMap();
+			nonTechHistoryMapHolder = evalWorker.getNonTechHistoryMap();
+
+			if (currentTask.equals("Technical")) {
+				specializedCurTaskCat = (MultCategory) techHistoryMapHolder
+						.get(catId);
+				genericCurTaskCat = (MultCategory) genericHistoryMapHolder
+						.get(1);
+				specializedOveralCategory = (MultCategory) techHistoryMapHolder
+						.get(0);
+			} else {
+				specializedCurTaskCat = (MultCategory) nonTechHistoryMapHolder
+						.get(catId);
+				genericCurTaskCat = (MultCategory) genericHistoryMapHolder
+						.get(2);
+				specializedOveralCategory = (MultCategory) nonTechHistoryMapHolder
+						.get(0);
+			}
+			genericOveralCategory = (MultCategory) genericHistoryMapHolder
+					.get(0);
+
+			currentReviews = genericHistoryMapHolder.get(0).getN();
+			if (currentReviews > ODeskTest.historyThreshold) {
+
+				if (approach.equals("RS")) {
+					for (int j = 0; j < 20; j++) {
+						updateErrorsCV(actualTaskScore, evalWorker, approach,
+								catId, workerType, currentTask, model,fold);
+
+					}
+				} else
+					updateErrorsCV(actualTaskScore, evalWorker, approach, catId,
+							workerType, currentTask, model,fold);
+			}
+		}
+
+		if (specializedCurTaskCat == null) {
+			specializedCurTaskCat = new MultCategory();
+			if (currentTask.equals("Technical")) {
+
+				techHistoryMapHolder.put(catId, specializedCurTaskCat);
+			} else {
+				nonTechHistoryMapHolder.put(catId, specializedCurTaskCat);
+			}
+
+		}
+
+		if (specializedOveralCategory == null) {
+			specializedOveralCategory = new MultCategory();
+			if (currentTask.equals("Technical")) {
+
+				techHistoryMapHolder.put(0, specializedOveralCategory);
+			} else {
+				nonTechHistoryMapHolder.put(0, specializedOveralCategory);
+			}
+
+		}
+
+		if (genericCurTaskCat == null) {
+			genericCurTaskCat = new MultCategory();
+			if (currentTask.equals("Technical")) {
+
+				genericHistoryMapHolder.put(1, genericCurTaskCat);
+			} else {
+				genericHistoryMapHolder.put(2, genericCurTaskCat);
+			}
+		}
+
+		addTaskOutcomeToCategory(specializedCurTaskCat, bucket);
+		addTaskOutcomeToCategory(specializedOveralCategory, bucket);
+		addTaskOutcomeToCategory(genericCurTaskCat, bucket);
+		addTaskOutcomeToCategory(genericOveralCategory, bucket);
+
+		if (currentTask.equals("Technical"))
+			evalWorker.increaseTech();
+		else
+			evalWorker.increaseNonTech();
+
+	}
+	
 
 }

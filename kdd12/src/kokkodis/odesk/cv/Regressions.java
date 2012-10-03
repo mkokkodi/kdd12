@@ -10,7 +10,7 @@ public class Regressions {
 	 * @param args
 	 */
 	private static RegressionUtils ru;
-	public static String regressionsCVOutPath = "/Users/mkokkodi/git/kdd12/cv_data/regressions/";
+	public static String regressionsCVOutPath = "/home/mkokkodi/workspace/git/kdd12/cv_data/regressions/";
 
 	public static void main(String[] args) {
 		ODeskTrain.print("Starting...");

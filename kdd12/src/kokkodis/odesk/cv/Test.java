@@ -13,7 +13,7 @@ import kokkodis.utils.odesk.RegressionUtils;
 
 public class Test {
 
-	private static String resultPath = "/Users/mkokkodi/git/kdd12/cv_data/results/";
+	private static String resultPath = "/home/mkokkodi/workspace/git/kdd12/cv_data/results/";
 
 	/**
 	 * @param args
@@ -59,7 +59,9 @@ public class Test {
 					ODeskTest.allModelCoeffs = getAllModelCoeffs(model,
 							approach,fold);
 
-				
+					System.out.println("Printing Keys...");
+				for(String key: ODeskTest.allModelCoeffs.keySet())
+					System.out.println(key);
 					runEvaluation(model, approach,fold);
 
 				}

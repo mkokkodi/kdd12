@@ -612,9 +612,9 @@ public class MySQLoDeskQueries extends Queries {
 						}
 						catId = tu.adjustODeskCategory(workerType, catId);
 
-						tu.updateEvalWorker(dataMapHolderEval, developerId,
+						tu.updateEvalWorkerCV(dataMapHolderEval, developerId,
 								catId, bucket, actualTaskScore, approach,
-								workerType, currentTask, model);
+								workerType, currentTask, model,fold);
 					}
 
 				}

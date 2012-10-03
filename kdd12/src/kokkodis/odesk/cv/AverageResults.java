@@ -10,23 +10,31 @@ import java.util.Map.Entry;
 
 import kokkodis.odesk.ODeskTest;
 import kokkodis.odesk.ODeskTrain;
+import kokkodis.utils.PrintToFile;
 
 public class AverageResults {
 
 	/**
 	 * @param args
 	 */
-	private static String resultPath = "/Users/mkokkodi/git/kdd12/cv_data/results/";
+	private static String resultPath = "/home/mkokkodi/workspace/git/kdd12/cv_data/results/";
 
 	public static void main(String[] args) {
 
+		PrintToFile resultsFile = new PrintToFile();
+		resultsFile.openFile(new File(resultPath+"cv_results.csv"));
+		resultsFile.writeToFile("Model,Approach,Score,History,MAEModel, MAEBasline");
 		for (String model : ODeskTrain.models) {
 			for (String approach : ODeskTrain.qApproach) {
 
 				/**
 				 * score -> History -> Metric
 				 */
-
+				System.out.println("---------------------------------------------------------");
+				System.out.println("| Model:"+model+" - Approach:"+approach);
+				
+				System.out.println("---------------------------------------------------------");
+				
 				HashMap<Double, HashMap<Integer, HashMap<String, ArrayList<Double>>>> data = new HashMap<Double, HashMap<Integer, HashMap<String, ArrayList<Double>>>>();
 				for (int fold = 1; fold < 11; fold++) {
 					String inFile = resultPath + model + "/" + approach + fold
@@ -91,19 +99,22 @@ public class AverageResults {
 				for(Entry<Double,HashMap<Integer,HashMap<String,ArrayList<Double>>>> e1: data.entrySet()){
 					
 					for(Entry<Integer,HashMap<String,ArrayList<Double>>> e2: e1.getValue().entrySet()){
+						String line=model+","+approach+","+e1.getKey()+","+e2.getKey()+",";
 						System.out.print(e1.getKey()+","+e2.getKey()+",");
 						for(Entry<String,ArrayList<Double>> e3: e2.getValue().entrySet()){
 							double sum = 0;
 							for(double d: e3.getValue())
 								sum+=d;
 							
+							line+=sum/e3.getValue().size()+",";
 							System.out.print(sum/e3.getValue().size()+",");
 						}
+						resultsFile.writeToFile(line.substring(0, line.length()-1));
 						System.out.println();
 					}
 				}
 			}
 		}
-		
+		resultsFile.closeFile();
 	}
 }

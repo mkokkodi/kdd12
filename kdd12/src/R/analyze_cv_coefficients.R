@@ -13,7 +13,7 @@ tmp
 
 computeCoeffVariances <- function(){
 levels<-c("Technical","Non-technical","Generic")
-models<-c("Binomial")#,"Multinomial")
+models<-c("Binomial","Multinomial")
 approaches<-c("PE")#,"RS")
 scores<-c(0.6,0.7,0.8,0.9)
 for(model in models){
@@ -21,27 +21,33 @@ for(model in models){
   for(level in levels){
   
     for(approach in approaches){
-      if( level == 'Generic'){
-        curSet<-results[results$level==level & results$Approach==approach  & results$Model==model,]
-        n<-10
-          printCoeffs(n,curSet)
-          
+    
+     if (model == 'Multinomial'){
+        curSet<-results[results$level==level & results$Approach==approach & results$Score==0.9 & results$Model==model,]
+        n<-16
+        cat(level,model,' - ',approach)
+        printCoeffs(n,curSet)
       }else{
+        if( level == 'Generic')
+          n<-10
+          else
+            n<-16
       for(score in scores){
         curSet<-results[results$level==level & results$Approach==approach & results$Score==score & results$Model==model,]
-        n<-16
+      
+        cat(level,model,score,approach)
           printCoeffs(n,curSet)
-        
+      }
       }
     }
   }
 }
-}
+
 }
 
 printCoeffs<-function(n,curSet){
   
-  #cat(level,model,score,approach)
+  
   for (i in 5:n) {
     
     

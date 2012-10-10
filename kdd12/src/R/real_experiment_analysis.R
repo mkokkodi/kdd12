@@ -11,12 +11,34 @@ head(improvements)
 
 
 
-
+binlabels<-c(expression(theta == 0.6),expression(theta == 0.7),expression(theta == 0.8),expression(theta == 0.9)," Baseline")
 binomial<-improvements[improvements$Model=='Binomial',]
 summary(binomial)
-ob1 <- ggplot(binomial,aes(History, improvement,colour=factor(Score),shape=factor(Score))) 
-ob1+geom_point(size=5)+geom_line(size = 1.1)+facet_wrap(~Approach,ncol=1)
+ob1 <- ggplot(binomial,aes(History, improvement*100,colour=factor(Score),shape=factor(Score))) 
+ob1+geom_point(size=5)+geom_line(size = 1.1)+facet_wrap(~Approach,ncol=2)+theme_bw(22) + xlab(expression(History - eta))+
+  ylab("Improvement %")+scale_shape_discrete(labels=binlabels)+ 
+  scale_colour_discrete(labels=binlabels)+labs(colour="",shape="")+
+  theme(axis.title.y = element_text(vjust=-0.1),axis.title.x = element_text(vjust=-0.3),plot.margin = unit(c(1, 1, 1, 1), "cm"))
+
+ggsave(file="/Users/mkokkodi/Documents/workspace/reputation_informs/figures/binOdesk.pdf",width=14,height=5,dpi=300)
+
 
 multinomial<-improvements[improvements$Model=='Multinomial',]
-ob1 <- ggplot(multinomial,aes(History, improvement,colour=Approach,shape=Approach)) 
-ob1+geom_point(size=5)+geom_line(size = 1.1)
+ob1 <- ggplot(multinomial,aes(History, improvement*100,colour=Approach,shape=Approach)) 
+ob1+geom_point(size=5)+geom_line(size = 1.1)+theme_bw(22)+xlab(expression(History - eta))+
+  ylab("Improvement %")+labs(colour="",shape="")
+
+ggsave(file="/Users/mkokkodi/Documents/workspace/reputation_informs/figures/multOdesk.pdf",width=8,height=5,dpi=300)
+
+
+#compare the two models.
+
+compdata<-results[(results$Model=='Binomial' & results$Score==0.9) |(results$Model=='Multinomial' & results$Approach != 'Baseline'), ]
+
+ob1 <- ggplot(compdata,aes(History, MAEModel,colour=Model,shape=Approach)) 
+ob1+geom_point(size=5)+geom_line(size = 1.1)+theme_bw(22)+xlab(expression(History - eta))+
+  ylab("MAE")+labs(colour="",shape="")
+
+ggsave(file="/Users/mkokkodi/Documents/workspace/reputation_informs/figures/comp.pdf",width=8,height=5,dpi=300)
+
+

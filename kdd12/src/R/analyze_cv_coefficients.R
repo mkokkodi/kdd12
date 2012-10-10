@@ -14,7 +14,7 @@ tmp
 computeCoeffVariances <- function(){
 levels<-c("Technical","Non-technical","Generic")
 models<-c("Binomial","Multinomial")
-approaches<-c("PE")#,"RS")
+approaches<-c("PE","RS")
 scores<-c(0.6,0.7,0.8,0.9)
 for(model in models){
  
@@ -51,7 +51,7 @@ printCoeffs<-function(n,curSet){
   for (i in 5:n) {
     
     
-    cat(sprintf(" %f (%f)  ", mean(curSet[,i]), sqrt(var(curSet[,i]))))
+    cat(sprintf(" %.3f & (%.3f) & ", mean(curSet[,i]), sqrt(var(curSet[,i]))))
   }
   cat(sprintf("\n"))
 }
